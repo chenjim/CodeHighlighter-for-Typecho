@@ -65,14 +65,31 @@
 
 ## 资产重建说明
 
-本仓库的 `static/prism.js` 与 `static/styles/*.css` 由 **PrismJS 1.30.0**（npm 包 `prismjs@1.30.0`）重新构建，替换了原先打包的 1.14.0 版本。步骤：
+本仓库的 `static/prism.js` 与 `static/styles/*.css` 由 **PrismJS** 官方 npm 包重新构建（当前 1.30.0，替换了原先打包的 1.14.0）。重建逻辑已固化为脚本 `build/build.js`，一条命令即可复现：
 
-1. 取源码：`npm install prismjs@1.30.0`
+```bash
+npm install prismjs@<version>       # 如 1.30.0
+node build/build.js                 # 写入 static/prism.js 与 static/styles/*.css
+node build/smoke-test.js            # 冒烟测试
+```
+
+`build/build.js` 内部做的事：
+
+1. 读取 `prismjs` 包（默认 `./node_modules/prismjs`，可用环境变量 `PRISM_DIR` 指定），版本号取自其 `package.json`
 2. `static/prism.js` = `components/prism-core.min.js` + 各语言组件 `components/prism-<lang>.min.js`（按依赖顺序拼接）+ 4 个插件
    - 语言顺序（被依赖者在前）：core → `markup` `css` `clike` `javascript` → 其余语言 → `typescript` `jsx` `tsx`（`jsx` 依赖 `markup`+`javascript`，`tsx` 依赖 `jsx`+`typescript`）
    - 插件：`plugins/line-numbers`、`plugins/toolbar`、`plugins/show-language`、`plugins/copy-to-clipboard`（`toolbar` 必须先于后两者，它们要向 toolbar 注册按钮）
    - 文件末尾追加别名：`Prism.languages.jsonc = Prism.languages.json;`、`Prism.languages.asm = Prism.languages.nasm;`
 3. 每个 `static/styles/<风格名>.css` = 对应主题 CSS + `plugins/line-numbers/prism-line-numbers.min.css` + `plugins/toolbar/prism-toolbar.min.css`
+4. 设 `BUMP_VERSION=1` 时，额外把 `Plugin.php` 的 `@version` 补丁号 +1
+
+### 自动更新（GitHub Actions）
+
+`.github/workflows/update-prismjs.yml` 已配置自动跟进上游：
+
+- **触发**：每周一 01:00 UTC 定时，或在工作流页面手动触发（`workflow_dispatch`）。
+- **逻辑**：读取 `static/prism.js` 头部版本 → 安装 npm 上 `prismjs@latest`（只认稳定版 `latest` 标签，自动避开 `2.0.0-alpha` 之类预发布）→ 版本不同才用 `build/build.js` 重建（`BUMP_VERSION=1`）→ 跑 `build/smoke-test.js` → 直接提交并推送到 `master`。
+- 提交者显示为 `github-actions[bot]`，提交信息形如 `chore: 自动升级 PrismJS 到 <version>`。
 
 主题文件名对应关系（保留原插件命名，含 `okaikia` 拼写）：
 
@@ -89,7 +106,7 @@
 
 ## 更新记录
 
-- **2026-10-09**：PrismJS 1.14.0 → 1.30.0；支持语言 21 → 51 种；新增 `jsonc`/`asm` 别名；8 套主题样式按 1.30.0 重建；修正失效链接并补充本说明。
+- **2026-10-09**：PrismJS 1.14.0 → 1.30.0；支持语言 21 → 51 种；新增 `jsonc`/`asm` 别名；8 套主题样式按 1.30.0 重建；修正失效链接并补充本说明；新增 `build/build.js` 构建脚本与 GitHub Actions 自动更新。
 - **1.0.0**：原作者 Copterfly 初始版本。
 
 ## 联系与授权

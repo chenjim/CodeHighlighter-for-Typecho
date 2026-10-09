@@ -1,6 +1,6 @@
 <?php
 /**
- * 基于 prismjs 的代码语法高亮插件<br />可显示语言类型、行号，有复制功能<br />(请勿与其它同类插件同时启用，以免互相影响)<br />详细说明：<a target="_blank" href="https://github.com/chenjim/CodeHighlighter-for-Typecho">https://github.com/chenjim/CodeHighlighter-for-Typecho</a>
+ * 基于 PrismJS 的代码语法高亮插件 for Typecho，可显示语言类型、行号，并支持一键复制代码到剪贴板。
  * 
  * @package CodeHighlighter 
  * @author Copterfly
