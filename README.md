@@ -1,14 +1,19 @@
 # CodeHighlighter-for-Typecho
 
-基于 prismjs 的代码语法高亮插件 for Typecho，可显示语言类型、行号，有复制代码到剪切板功能。
+基于 PrismJS 的代码语法高亮插件 for Typecho，可显示语言类型、行号，并支持一键复制代码到剪贴板。
 
-github开源地址：[https://github.com/Copterfly/CodeHighlighter-for-Typecho][1]
+- 本仓库（fork，维护中）：<https://github.com/chenjim/CodeHighlighter-for-Typecho>
+- 上游原仓库（原作者 Copterfly，已停更）：<https://github.com/Copterfly/CodeHighlighter-for-Typecho>
+
+> 本仓库为 fork。在原作者版本的基础上，把内置的 PrismJS 从 **1.14.0 升级到 1.30.0**，扩充支持语言并重建主题样式。重建方式见文末「资产重建说明」。
 
 ## 起始
 
-本插件是基于 [prismjs][2] 的 `Typecho` 代码语法高亮显示插件。( Typecho 1.1版可用，其它版本请自行尝试)
+本插件基于 [PrismJS](https://prismjs.com/) 为 `Typecho` 提供代码语法高亮。
 
-可显示语言类型、行号，有复制功能。(请勿与其它同类插件同时启用，以免互相影响)
+可显示语言类型、行号，有复制功能。（请勿与其它同类插件同时启用，以免互相影响）
+
+**兼容性**：已在 Typecho 1.3.0 + PHP 8.2 实测通过；Typecho 1.1 亦可使用，其它版本请自行尝试。
 
 ## 使用方法
 
@@ -18,69 +23,81 @@ github开源地址：[https://github.com/Copterfly/CodeHighlighter-for-Typecho][
 
 第 3 步：登录管理后台，激活插件；
 
-第 4 步：设置：选择主题风格，是否显示行号等。
+第 4 步：设置：选择主题风格、是否显示行号等。
 
-**代码写法**
+**代码写法**（Typecho 编辑器需以 `<!--markdown-->` 开头启用 Markdown）：
 
+````
+```javascript
+// 语言类型写在围栏后，必填
+// codes go here
 ```
-'''javascript (语言类型必填)
-  // codes go here
-'''
-```
-
-**高亮效果图**
-
-![代码高亮.png][3]
+````
 
 ## 重要说明
 
 ### 可设置项
 
-**1. 选择高亮主题风格** (官方提供的 8 种风格切换)
+**1. 选择高亮主题风格**（8 种）
 
-- coy.css
-- dark.css
-- default.css
-- funky.css
-- okaikia.css (默认选中，因为比较顺眼)
-- solarized-light.css
-- tomorrow-night.css
-- twilight.css
+- `coy.css`
+- `dark.css`
+- `default.css`
+- `funky.css`
+- `okaikia.css`（默认选中；对应 Prism 的 okaidia 主题，文件名沿用原插件拼写）
+- `solarized-light.css`
+- `tomorrow-night.css`
+- `twilight.css`
 
-**2. 是否在代码左侧显示行号** (默认开启)
+**2. 是否在代码左侧显示行号**（默认开启）
 
-### 在插件中不方便实现的设置项
+### 支持的语言与自定义
 
-由于 `prismjs` 与 `highlightjs` 的插件扩展机制不同，所以本插件的有些扩展项是无法设置的。
+本仓库内置 **51 种语言**（原版为 21 种）：
 
-本插件支持常见的一些语言高亮。您可以打开以下链接查看详情：
+`markup` `css` `clike` `javascript` `apacheconf` `bash` `c` `cpp` `java` `csharp` `aspnet` `coffeescript` `markup-templating` `php` `smarty` `git` `less` `markdown` `nginx` `sql` `python` `kotlin` `groovy` `gradle` `json` `json5` `yaml` `toml` `ini` `diff` `docker` `cmake` `makefile` `sass` `scss` `nasm` `go` `rust` `ruby` `swift` `powershell` `http` `graphql` `protobuf` `objectivec` `wasm` `regex` `uri` `typescript` `jsx` `tsx`
 
-[http://prismjs.com/download.html#themes=prism-okaidia&languages=markup+css+clike+javascript+apacheconf+c+aspnet+bash+cpp+csharp+coffeescript+markup-templating+git+java+less+markdown+nginx+php+sql+python+smarty&plugins=line-numbers+toolbar+show-language+copy-to-clipboard][4]
+另做了两个别名映射：`jsonc → json`、`asm → nasm`。
 
-如有需要，请勾选需要支持的语言定制您的 js 和 css 文件，下载好后，分别替换以下文件：
+内置的 4 个 Prism 插件：`line-numbers`、`toolbar`、`show-language`、`copy-to-clipboard`。
 
-`Typecho 插件目录\CodeHighlighter\static\prism.js`
+如需自行定制，可用 Prism 官方下载器勾选主题/语言/插件后，替换 `static/prism.js` 与 `static/styles/<风格名>.css`。下载器配置链接见文末。
 
-`Typecho 插件目录\CodeHighlighter\static\styles\改为对应的风格名.css` (如跟您博客样式有冲突，稍作修改此 `css` 即可)
+## 资产重建说明
 
-**建议**
+本仓库的 `static/prism.js` 与 `static/styles/*.css` 由 **PrismJS 1.30.0**（npm 包 `prismjs@1.30.0`）重新构建，替换了原先打包的 1.14.0 版本。步骤：
 
-插件 `Plugins` 最好至少勾选以下 4 项：
+1. 取源码：`npm install prismjs@1.30.0`
+2. `static/prism.js` = `components/prism-core.min.js` + 各语言组件 `components/prism-<lang>.min.js`（按依赖顺序拼接）+ 4 个插件
+   - 语言顺序（被依赖者在前）：core → `markup` `css` `clike` `javascript` → 其余语言 → `typescript` `jsx` `tsx`（`jsx` 依赖 `markup`+`javascript`，`tsx` 依赖 `jsx`+`typescript`）
+   - 插件：`plugins/line-numbers`、`plugins/toolbar`、`plugins/show-language`、`plugins/copy-to-clipboard`（`toolbar` 必须先于后两者，它们要向 toolbar 注册按钮）
+   - 文件末尾追加别名：`Prism.languages.jsonc = Prism.languages.json;`、`Prism.languages.asm = Prism.languages.nasm;`
+3. 每个 `static/styles/<风格名>.css` = 对应主题 CSS + `plugins/line-numbers/prism-line-numbers.min.css` + `plugins/toolbar/prism-toolbar.min.css`
 
-- Line Numbers (在代码左侧显示行号)
-- Toolbar (代码块右上方工具条)
-- Show Language (显示代码是什么语言【依赖: Toolbar】)
-- Copy to Clipboard Button (复制代码功能【依赖: Toolbar】)
+主题文件名对应关系（保留原插件命名，含 `okaikia` 拼写）：
 
-## 与我联系
+| 本仓库文件 | PrismJS 主题 |
+|---|---|
+| `coy.css` | `prism-coy` |
+| `dark.css` | `prism-dark` |
+| `default.css` | `prism`（默认主题） |
+| `funky.css` | `prism-funky` |
+| `okaikia.css` | `prism-okaidia` |
+| `solarized-light.css` | `prism-solarizedlight` |
+| `tomorrow-night.css` | `prism-tomorrow` |
+| `twilight.css` | `prism-twilight` |
 
-作者：Copterfly
+## 更新记录
 
-有问题请到博客留言交流：[http://www.copterfly.cn/server-side/php/typecho-code-highlighter.html][5]
+- **2026-10-09**：PrismJS 1.14.0 → 1.30.0；支持语言 21 → 51 种；新增 `jsonc`/`asm` 别名；8 套主题样式按 1.30.0 重建；修正失效链接并补充本说明。
+- **1.0.0**：原作者 Copterfly 初始版本。
 
+## 联系与授权
 
-  [1]: https://github.com/Copterfly/CodeHighlighter-for-Typecho
-  [2]: http://prismjs.com/
-  [3]: http://www.copterfly.cn/usr/uploads/2018/05/2713638326.png
-  [4]: http://prismjs.com/download.html#themes=prism-okaidia&languages=markup+css+clike+javascript+apacheconf+c+aspnet+bash+cpp+csharp+coffeescript+markup-templating+git+java+less+markdown+nginx+php+sql+python+smarty&plugins=line-numbers+toolbar+show-language+copy-to-clipboard
-  [5]: http://www.copterfly.cn/server-side/php/typecho-code-highlighter.html
+原作者：Copterfly。本 fork 的维护与问题反馈请走本仓库 Issues：<https://github.com/chenjim/CodeHighlighter-for-Typecho/issues>
+
+> 注：原作者网站 `copterfly.cn` 已无法访问，原 README 中的博客链接与示例插图已一并移除。
+
+Prism 下载器当前配置（对应本仓库内置的主题/语言/插件）：
+
+<https://prismjs.com/download.html#themes=prism-okaidia&languages=markup+css+clike+javascript+apacheconf+bash+c+cpp+java+csharp+aspnet+coffeescript+markup-templating+php+smarty+git+less+markdown+nginx+sql+python+kotlin+groovy+gradle+json+json5+yaml+toml+ini+diff+docker+cmake+makefile+sass+scss+nasm+go+rust+ruby+swift+powershell+http+graphql+protobuf+objectivec+wasm+regex+uri+typescript+jsx+tsx&plugins=line-numbers+toolbar+show-language+copy-to-clipboard>
